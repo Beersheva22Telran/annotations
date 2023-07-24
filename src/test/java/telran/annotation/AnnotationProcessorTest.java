@@ -16,8 +16,10 @@ class AnnotationProcessorTest {
 	}
 
 }
+
 class Xright {
 	public Xright(String email, String name) {
+		
 		this.email = email;
 		this.name = name;
 	}
