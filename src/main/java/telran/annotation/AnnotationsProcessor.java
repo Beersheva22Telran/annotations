@@ -1,10 +1,12 @@
 package telran.annotation;
 
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 
 import telran.validation.annotation.Pattern;
+import telran.validation.annotation.Validation;
 
 
 public class AnnotationsProcessor {
@@ -36,10 +38,35 @@ public class AnnotationsProcessor {
 	public static List<String> validate(Object obj) {
 		Class<?> clazz = obj.getClass();
 		Field[] fields = clazz.getDeclaredFields();
+		List<String> errorMessages = new ArrayList<>();
+		for(Field field : fields) {
+			validateField(field, errorMessages, obj);
+		}
 		
-		return Arrays.stream(fields).filter(f -> f.isAnnotationPresent(Pattern.class))
-				.map(f -> getMessage(f, obj)).filter(s -> !s.isEmpty()).toList();
+		return errorMessages;
+				
 	}
+	private static void validateField(Field field, List<String> errorMessages, Object obj) {
+		Annotation [] annotations = field.getAnnotations();
+		List<Annotation> validationAnnotations = Arrays.stream(annotations)
+				.filter(a -> a.annotationType().isAnnotationPresent(Validation.class))
+		.toList();
+		validationAnnotations.forEach(a -> validateAnnotation(a, field, errorMessages, obj));
+		
+		
+	}
+
+	private static void validateAnnotation(Annotation a, Field field, List<String> errorMessages, Object obj) {
+		// TODO Auto-generated method stub
+		//define Validator class name according to the Annotation name
+		System.out.println(a.annotationType().getName()+"Validator");
+		String message = getMessage(field, obj);
+		if(!message.isEmpty()) {
+			errorMessages.add(message);
+		}
+		//
+	}
+
 	private static String getMessage(Field field, Object obj) {
 		String res = "";
 		field.setAccessible(true);
